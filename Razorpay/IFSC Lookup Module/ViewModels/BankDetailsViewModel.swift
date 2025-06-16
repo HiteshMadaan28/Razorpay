@@ -18,6 +18,9 @@ class BankDetailsViewModel: ObservableObject {
     private let bankService: BankServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     
+    // Search History Manager
+    let searchHistoryManager = SearchHistoryManager()
+    
     init(bankService: BankServiceProtocol = BankService()) {
         self.bankService = bankService
     }
@@ -47,11 +50,24 @@ class BankDetailsViewModel: ObservableObject {
                     }
                 },
                 receiveValue: { [weak self] details in
-                    self?.bankDetails = details
-                    self?.isLoading = false
+                    guard let self = self else { return }
+                    self.bankDetails = details
+                    self.isLoading = false
+                    
+                    // Add to search history
+                    self.searchHistoryManager.addSearch(
+                        ifscCode: self.ifscCode.uppercased(),
+                        bankDetails: details
+                    )
                 }
             )
             .store(in: &cancellables)
+    }
+    
+    func loadFromHistory(_ historyItem: SearchHistoryItem) {
+        ifscCode = historyItem.ifscCode
+        bankDetails = historyItem.bankDetails
+        errorMessage = nil
     }
     
     func clearResults() {

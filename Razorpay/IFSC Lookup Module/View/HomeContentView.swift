@@ -9,9 +9,10 @@ import SwiftUI
 
 struct HomeContentView: View {
     @StateObject private var viewModel = BankDetailsViewModel()
+    @State private var showingHistory = false
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     // Header
@@ -26,7 +27,10 @@ struct HomeContentView: View {
                     } else if let errorMessage = viewModel.errorMessage {
                         errorView(message: errorMessage)
                     } else if let bankDetails = viewModel.bankDetails {
-                        bankDetailsView(details: bankDetails)
+                        NavigationLink(destination: BankDetailsView(bankDetails: bankDetails)) {
+                            bankDetailsPreview(details: bankDetails)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     Spacer()
@@ -35,6 +39,21 @@ struct HomeContentView: View {
             }
             .navigationTitle("IFSC Lookup")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingHistory = true
+                    }) {
+                        HStack {
+                            Image(systemName: "clock.arrow.circlepath")
+                            Text("History")
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showingHistory) {
+                SearchHistoryView(viewModel: viewModel)
+            }
         }
     }
     
@@ -148,168 +167,88 @@ struct HomeContentView: View {
         .cornerRadius(12)
     }
     
-    // MARK: - Complete Bank Details View
-    private func bankDetailsView(details: BankDetails) -> some View {
-        VStack(spacing: 20) {
+    // MARK: - Bank Details Preview
+    private func bankDetailsPreview(details: BankDetails) -> some View {
+        VStack(spacing: 16) {
             // Bank Header
             VStack(spacing: 8) {
                 Text(details.bank)
-                    .font(.system(size: 20))
+                    .font(.title2)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.primary)
                 
                 Text(details.branch)
-                    .font(.system(size: 15))
+                    .font(.headline)
                     .foregroundColor(.blue)
                     .multilineTextAlignment(.center)
                     .fontWeight(.semibold)
             }
             .padding()
+            .background(Color.blue.opacity(0.1))
             .cornerRadius(12)
             
-            // Primary Identifiers Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Primary Identifiers", icon: "creditcard.fill")
-                
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 12) {
-                    DetailCard(title: "IFSC Code", value: details.ifsc, icon: "number.circle.fill", color: .blue)
-                    DetailCard(title: "Bank Code", value: details.bankcode, icon: "building.2.fill", color: .green)
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Location Information Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Location Information", icon: "location.fill")
-                
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 12) {
-                    DetailCard(title: "City", value: details.city, icon: "building.fill", color: .orange)
-                    DetailCard(title: "State", value: details.state, icon: "map.fill", color: .purple)
-                    DetailCard(title: "District", value: details.district, icon: "location.circle.fill", color: .red)
-                    DetailCard(title: "Centre", value: details.centre, icon: "mappin.circle.fill", color: .teal)
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Additional Codes Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Additional Codes", icon: "barcode")
-                
-                VStack(spacing: 8) {
-                    if let micr = details.micr, !micr.isEmpty {
-                        InfoRow(label: "MICR Code", value: micr, icon: "barcode")
+            // Quick Info
+            VStack(spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("IFSC Code")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(details.ifsc)
+                            .font(.headline)
+                            .fontWeight(.bold)
                     }
                     
-                    if let swift = details.swift, !swift.isEmpty {
-                        InfoRow(label: "SWIFT Code", value: swift, icon: "globe")
-                    } else {
-                        InfoRow(label: "SWIFT Code", value: "Not Available", icon: "globe")
+                    Spacer()
+                    
+                    VStack(alignment: .trailing) {
+                        Text("City")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(details.city)
+                            .font(.headline)
+                            .fontWeight(.bold)
+                    }
+                }
+                
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("State")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(details.state)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                     }
                     
-                    InfoRow(label: "ISO 3166 Code", value: details.iso3166, icon: "flag.fill")
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Contact Information Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Contact Information", icon: "phone.fill")
-                
-                VStack(spacing: 8) {
-                    if let contact = details.contact, !contact.isEmpty {
-                        InfoRow(label: "Phone Number", value: contact, icon: "phone.circle.fill")
-                    } else {
-                        InfoRow(label: "Phone Number", value: "Not Available", icon: "phone.circle.fill")
+                    Spacer()
+                    
+                    VStack(alignment: .trailing) {
+                        Text("Bank Code")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(details.bankcode)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                     }
                 }
             }
             .padding()
             .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .cornerRadius(10)
             
-            // Address Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Branch Address", icon: "location.fill")
-                
-                Text(details.address)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.leading)
-                    .padding()
-                    .background(Color.white)
-                    .cornerRadius(8)
+            // Tap to view more indicator
+            HStack {
+                Text("Tap to view complete details")
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.blue)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Banking Services Section
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Available Banking Services", icon: "creditcard.fill")
-                
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 12) {
-                    ServiceCard(name: "UPI", isAvailable: details.upi, description: "Unified Payments Interface")
-                    ServiceCard(name: "RTGS", isAvailable: details.rtgs, description: "Real Time Gross Settlement")
-                    ServiceCard(name: "NEFT", isAvailable: details.neft, description: "National Electronic Funds Transfer")
-                    ServiceCard(name: "IMPS", isAvailable: details.imps, description: "Immediate Payment Service")
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Complete Information Summary
-            VStack(alignment: .leading, spacing: 12) {
-                SectionHeader(title: "Complete Information Summary", icon: "list.bullet.clipboard.fill")
-                
-                VStack(spacing: 6) {
-                    InfoRow(label: "Bank Name", value: details.bank, icon: "building.columns.fill")
-                    InfoRow(label: "Branch Name", value: details.branch, icon: "building.fill")
-                    InfoRow(label: "IFSC Code", value: details.ifsc, icon: "number.circle.fill")
-                    InfoRow(label: "Bank Code", value: details.bankcode, icon: "building.2.fill")
-                    InfoRow(label: "City", value: details.city, icon: "building.fill")
-                    InfoRow(label: "State", value: details.state, icon: "map.fill")
-                    InfoRow(label: "District", value: details.district, icon: "location.circle.fill")
-                    InfoRow(label: "Centre", value: details.centre, icon: "mappin.circle.fill")
-                    InfoRow(label: "ISO 3166", value: details.iso3166, icon: "flag.fill")
-                    
-                    if let micr = details.micr, !micr.isEmpty {
-                        InfoRow(label: "MICR Code", value: micr, icon: "barcode")
-                    }
-                    
-                    if let contact = details.contact, !contact.isEmpty {
-                        InfoRow(label: "Contact", value: contact, icon: "phone.circle.fill")
-                    }
-                    
-                    if let swift = details.swift, !swift.isEmpty {
-                        InfoRow(label: "SWIFT Code", value: swift, icon: "globe")
-                    }
-                    
-                    InfoRow(label: "UPI Available", value: details.upi ? "Yes" : "No", icon: "checkmark.circle.fill")
-                    InfoRow(label: "RTGS Available", value: details.rtgs ? "Yes" : "No", icon: "checkmark.circle.fill")
-                    InfoRow(label: "NEFT Available", value: details.neft ? "Yes" : "No", icon: "checkmark.circle.fill")
-                    InfoRow(label: "IMPS Available", value: details.imps ? "Yes" : "No", icon: "checkmark.circle.fill")
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(.horizontal)
         }
         .padding()
         .background(Color(.systemBackground))
