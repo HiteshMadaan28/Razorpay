@@ -1,3 +1,10 @@
+//
+//  BankDetails.swift
+//  Razorpay
+//
+//  Created by Hitesh Madaan on 16/06/25.
+//
+
 import Foundation
 
 // MARK: - Bank Details Model
