@@ -47,10 +47,3 @@ struct BankDetails: Codable {
         case ifsc = "IFSC"
     }
 }
-
-// MARK: - API Response Model
-struct APIResponse: Codable {
-    let success: Bool
-    let data: BankDetails?
-    let message: String?
-}

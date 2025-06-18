@@ -21,6 +21,7 @@ class BankDetailsViewModel: ObservableObject {
     // Search History Manager
     let searchHistoryManager = SearchHistoryManager()
     
+    //Dependency Injection
     init(bankService: BankServiceProtocol = BankService()) {
         self.bankService = bankService
     }
