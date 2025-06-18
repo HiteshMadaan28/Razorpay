@@ -1,6 +1,22 @@
 # Razorpay App - Swift/SwiftUI
 
-A modern iOS app built with SwiftUI that allows users to search for bank details using IFSC codes. The app follows MVVM architecture pattern, demonstrates clean code practices, and includes persistent search history functionality.
+A modern iOS app built with SwiftUI that allows users to search for bank details using IFSC codes. The app follows the MVVM architecture pattern, demonstrates clean code practices, and includes persistent search history functionality.
+
+## 🚀 Images
+
+<table>
+  <tr>
+    <td><img src="Screenshots/HomeScreen.png" alt="Home Screen" width="200"/></td>
+    <td><img src="Screenshots/HomeWithSearchIFSC.png" alt="Home With IFSC" width="200"/></td>
+    <td><img src="Screenshots/IFSCinfoScreen.png" alt="IFSC Info" width="200"/></td>
+    <td><img src="Screenshots/IFSCinfoScreen2.png" alt="IFSC Info 2" width="200"/></td>
+  </tr>
+  <tr>
+    <td><img src="Screenshots/HistoryScreen.png" alt="History Screen" width="200"/></td>
+    <td><img src="Screenshots/InvalidIFSCcode.png" alt="Invalid Code" width="200"/></td>
+    <td><img src="Screenshots/NoInterntError.png" alt="No Internet" width="200"/></td>
+  </tr>
+</table>
 
 ## 🚀 Features
 
